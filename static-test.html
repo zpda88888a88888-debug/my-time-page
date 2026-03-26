@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
+    <meta name="format-detection" content="telephone=no">
+    <title>灵动时间 · 移动端测试台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent; /* 移除移动端点击灰层 */
+        }
+
+        body {
+            background: linear-gradient(145deg, #e0eaf4 0%, #cfdef3 100%);
+            font-family: system-ui, -apple-system, 'Segoe UI', 'Roboto', 'Helvetica Neue', Helvetica, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* 主卡片容器 - 移动优先，圆润舒适 */
+        .card {
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(0px);
+            border-radius: 56px;
+            box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.25), 0 4px 12px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 480px;
+            padding: 32px 24px 44px 24px;
+            transition: all 0.2s ease;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+
+        /* 标题区域 */
+        .title {
+            font-size: 1.9rem;
+            font-weight: 620;
+            letter-spacing: -0.3px;
+            background: linear-gradient(135deg, #1A2A3F, #2C4A6E);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            margin-bottom: 12px;
+        }
+
+        .sub {
+            color: #5b6e8c;
+            font-size: 0.9rem;
+            border-bottom: 1px solid #e2edf7;
+            display: inline-block;
+            padding-bottom: 6px;
+            margin-bottom: 28px;
+            font-weight: 450;
+        }
+
+        /* 时间展示面板 */
+        .time-panel {
+            background: #f8fafd;
+            border-radius: 48px;
+            padding: 28px 16px;
+            margin: 20px 0 28px 0;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.02), 0 8px 20px -8px rgba(0,0,0,0.1);
+            border: 1px solid #ffffffcc;
+        }
+
+        .time-label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 500;
+            color: #4f6f8f;
+            margin-bottom: 12px;
+        }
+
+        #timeDisplay {
+            font-size: 1.75rem;
+            font-weight: 570;
+            font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+            color: #0f2b3d;
+            background: #ffffffcc;
+            display: inline-block;
+            padding: 12px 20px;
+            border-radius: 60px;
+            backdrop-filter: blur(4px);
+            word-break: break-word;
+            max-width: 100%;
+            line-height: 1.3;
+            letter-spacing: 0.5px;
+            transition: all 0.2s;
+        }
+
+        /* 现代大按钮 — 拇指友好 */
+        .time-btn {
+            background: #2c5f8a;
+            border: none;
+            width: 85%;
+            margin: 10px auto 18px auto;
+            display: block;
+            padding: 16px 12px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: white;
+            border-radius: 60px;
+            cursor: pointer;
+            box-shadow: 0 8px 20px -6px rgba(44, 95, 138, 0.4);
+            transition: transform 0.15s ease, background 0.2s, box-shadow 0.2s;
+            backdrop-filter: blur(2px);
+            letter-spacing: 0.5px;
+        }
+
+        .time-btn:active {
+            transform: scale(0.96);
+            background: #1e4568;
+            box-shadow: 0 4px 12px -3px rgba(44, 95, 138, 0.5);
+        }
+
+        /* 辅助说明区域 + 控制台提示 */
+        .info-hint {
+            margin-top: 24px;
+            font-size: 0.75rem;
+            background: #eef3fc;
+            padding: 12px 18px;
+            border-radius: 36px;
+            color: #3a5a7a;
+            display: inline-block;
+            width: auto;
+            backdrop-filter: blur(2px);
+        }
+
+        .info-hint i {
+            font-style: normal;
+            background: #d9e4f0;
+            padding: 3px 10px;
+            border-radius: 30px;
+            font-family: monospace;
+            font-size: 0.7rem;
+            margin: 0 4px;
+        }
+
+        .console-badge {
+            background: #1e2f3f;
+            color: #b9e6ff;
+            padding: 6px 12px;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 20px;
+            font-family: monospace;
+        }
+
+        footer {
+            font-size: 0.7rem;
+            color: #6f8eae;
+            margin-top: 28px;
+            opacity: 0.8;
+        }
+
+        /* 触控优化，点击区域足够大 */
+        button {
+            touch-action: manipulation;
+        }
+
+        /* 手机小屏微调 */
+        @media (max-width: 480px) {
+            .card {
+                padding: 28px 18px 36px 18px;
+            }
+            #timeDisplay {
+                font-size: 1.4rem;
+                padding: 10px 16px;
+            }
+            .time-btn {
+                width: 90%;
+                font-size: 1.2rem;
+                padding: 14px 12px;
+            }
+            .title {
+                font-size: 1.7rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div class="title">
+        ⏱️ 灵动时间
+    </div>
+    <div class="sub">
+        移动端 · 测试脚本
+    </div>
+
+    <!-- 时间展示核心区域 -->
+    <div class="time-panel">
+        <div class="time-label">
+            📍 当前时刻
+        </div>
+        <div id="timeDisplay">
+            -- 等待加载 --
+        </div>
+    </div>
+
+    <!-- 主要交互按钮 -->
+    <button class="time-btn" id="refreshTimeBtn">
+        ✨ 获取 / 刷新时间 ✨
+    </button>
+
+    <!-- 提示：控制台也会有输出，体现测试脚本 -->
+    <div class="info-hint">
+        💡 点击按钮 → 更新时间 & 控制台输出日志<br>
+        <span style="font-size:0.7rem;">📱 适配手机 | 优雅响应</span>
+    </div>
+    
+    <div class="console-badge">
+        🧪 测试脚本已激活 · 控制台同步输出时间
+    </div>
+    <footer>
+        ⚡ 轻触按钮 | 每次点击均会记录时间戳
+    </footer>
+</div>
+
+<script>
+    (function() {
+        // ---------- 测试脚本核心 ----------
+        // 功能：显示当前时间、控制台输出、完全适配移动端
+        
+        // 获取DOM元素
+        const timeDisplayElement = document.getElementById('timeDisplay');
+        const refreshBtn = document.getElementById('refreshTimeBtn');
+        
+        /**
+         * 格式化日期时间为优雅的中文+数字混合格式
+         * 输出示例: 2025年03月26日 周三 14:35:07
+         * 同时兼具完整可读性，便于测试展示
+         */
+        function getFormattedDateTime() {
+            const now = new Date();
+            
+            // 年份、月份、日
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            
+            // 星期几 (中文简写)
+            const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+            const weekday = weekdays[now.getDay()];
+            
+            // 时分秒，补零
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            
+            // 优雅组合：2025-03-26 周三 14:35:07  同时适应移动端大间距
+            return `${year}.${month}.${day} ${weekday} ${hours}:${minutes}:${seconds}`;
+        }
+        
+        /**
+         * 更新页面上的时间显示，并输出测试日志到控制台
+         * 同时满足 "输出一下时间" 和 "测试用js脚本"
+         */
+        function updateTimeAndLog() {
+            // 获取当前格式化时间
+            const currentTimeStr = getFormattedDateTime();
+            
+            // 1. 更新到页面 DOM 中 (核心显示)
+            if (timeDisplayElement) {
+                timeDisplayElement.textContent = currentTimeStr;
+            } else {
+                console.warn("⚠️ 测试警告：未找到时间显示元素");
+            }
+            
+            // 2. 测试脚本核心行为 —— 控制台输出时间，便于开发测试
+            //   额外输出详细时间戳及调用来源，模拟真实测试场景
+            console.log(`[测试脚本] 🕒 时间已刷新/获取 → ${currentTimeStr}`);
+            console.log(`[测试脚本] 📅 原始时间戳: ${Date.now()} ms (Unix)`);
+            
+            // 附加一点小趣味: 根据秒数奇偶输出简短提示 (仅为展示测试脚本活跃)
+            const seconds = new Date().getSeconds();
+            if (seconds % 2 === 0) {
+                console.log(`[测试彩蛋] 🎯 当前秒数为偶数 ${seconds}，一切平稳运行`);
+            } else {
+                console.log(`[测试彩蛋] 🌀 当前秒数为奇数 ${seconds}，灵动时刻`);
+            }
+        }
+        
+        /**
+         * 额外展示页面加载就绪后的初始状态
+         * 保证第一次加载就能看到时间，并输出初始化日志
+         */
+        function initPage() {
+            console.log("========================================");
+            console.log("✅ [移动端测试脚本] 页面已启动 | 适配手机布局");
+            console.log("📌 脚本功能: 点击按钮更新时间 & 控制台输出");
+            console.log("🌐 当前 User Agent: " + navigator.userAgent);
+            console.log("========================================");
+            
+            // 页面首次加载立即显示时间（不用点击就看到时间，符合预期）
+            updateTimeAndLog();
+            
+            // 额外显示一条初始化完成提示
+            console.log("[测试脚本] 🚀 初始时间加载完成，UI已渲染，等待用户交互");
+        }
+        
+        // 绑定按钮点击事件 (纯原生，适配移动触摸)
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', function(e) {
+                // 移动端点击时添加触感反馈效果（仅视觉无依赖）
+                // 核心调用更新时间并打印测试日志
+                updateTimeAndLog();
+                
+                // 可选：提供极轻度的触觉反馈（振动仅在支持且不干扰时，但为了体验不加强制振动，无权限要求）
+                // 满足“点击按钮输出时间”的需求已经完整实现
+                
+                // 控制台额外打印一次点击事件来源，更细致测试
+                console.log("[测试脚本] 👆 按钮被点击 (触发时间刷新)");
+            });
+        } else {
+            console.error("测试脚本错误: 未找到按钮元素 #refreshTimeBtn");
+        }
+        
+        // 执行页面初始化，显示时间 + 控制台基础信息
+        initPage();
+        
+        // 可选：额外挂载一个测试方法到window，方便调试 (非必须，但体现脚本灵活性)
+        window.__testTimeAPI = {
+            getCurrentFormatted: getFormattedDateTime,
+            manualRefresh: updateTimeAndLog
+        };
+        console.log("[测试脚本] 🧰 辅助测试API已挂载 window.__testTimeAPI ，可在控制台手动调用");
+    })();
+</script>
+</body>
+</html>
