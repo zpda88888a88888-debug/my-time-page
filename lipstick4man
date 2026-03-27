@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>口红识色器 - 直男选色指南</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: #f8f5f0;  /* 暖白背景，舒适护眼 */
+            font-family: system-ui, -apple-system, 'Segoe UI', 'Roboto', 'Helvetica Neue', Helvetica, sans-serif;
+            color: #2c241a;
+            padding: 20px 16px 40px;
+        }
+
+        /* 主容器，移动端舒适宽度 */
+        .app-container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        /* 头部 */
+        .header {
+            margin-bottom: 24px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            background: linear-gradient(135deg, #d4380d, #b02c0c);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            margin-bottom: 6px;
+        }
+        .sub {
+            font-size: 0.85rem;
+            color: #a07c5c;
+            border-top: 1px solid #ede3d8;
+            display: inline-block;
+            padding-top: 6px;
+        }
+
+        /* 搜索框 */
+        .search-box {
+            margin-bottom: 20px;
+        }
+        .search-box input {
+            width: 100%;
+            padding: 14px 18px;
+            font-size: 1rem;
+            border: 1px solid #e2d4c8;
+            border-radius: 48px;
+            background: white;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+            transition: all 0.2s;
+            outline: none;
+            font-weight: 400;
+        }
+        .search-box input:focus {
+            border-color: #d48c6c;
+            box-shadow: 0 0 0 3px rgba(212, 140, 108, 0.2);
+        }
+
+        /* 标签筛选区 (多选) */
+        .filter-section {
+            background: white;
+            border-radius: 28px;
+            padding: 12px 16px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            border: 1px solid #efe5dc;
+        }
+        .filter-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #b26b42;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .filter-title span {
+            background: #f1e7df;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            color: #9b5e3a;
+        }
+        .tag-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .tag {
+            background: #f4ede7;
+            padding: 6px 16px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #5f4432;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            user-select: none;
+            border: 1px solid transparent;
+        }
+        .tag.active {
+            background: #d95b3c;
+            color: white;
+            border-color: #c94b2c;
+            box-shadow: 0 2px 6px rgba(217, 91, 60, 0.3);
+        }
+        /* 重置按钮 */
+        .reset-filter {
+            background: none;
+            border: none;
+            font-size: 0.7rem;
+            color: #bc8a6c;
+            margin-left: auto;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 20px;
+        }
+        .reset-filter:active {
+            background: #f0e4da;
+        }
+
+        /* 结果统计 */
+        .result-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 14px;
+            padding: 0 4px;
+        }
+        .count {
+            font-size: 0.8rem;
+            color: #b4815d;
+            font-weight: 500;
+        }
+        .clear-search {
+            font-size: 0.7rem;
+            background: none;
+            border: none;
+            color: #cb7e5a;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        /* 卡片网格布局 - 移动端两列 */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        /* 卡片样式 */
+        .lip-card {
+            background: white;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+            border: 1px solid #f0e3d8;
+        }
+        .lip-card:active {
+            transform: scale(0.98);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        /* 预留图片位 */
+        .card-img-placeholder {
+            background: #f3ede8;
+            height: 130px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            color: #bdaa9a;
+            border-bottom: 1px solid #f0e2d6;
+            position: relative;
+        }
+        .card-img-placeholder::before {
+            content: "📷";
+            font-size: 2rem;
+            opacity: 0.4;
+        }
+        /* 未来实际图片样式 (预留) */
+        .lip-card img {
+            width: 100%;
+            height: 130px;
+            object-fit: cover;
+            display: block;
+        }
+        /* 色值色块 */
+        .color-swatch {
+            height: 48px;
+            width: 100%;
+            background: #ccc;
+            transition: all 0.1s;
+        }
+        .card-info {
+            padding: 12px 12px 14px;
+        }
+        .brand {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #bf8464;
+            margin-bottom: 4px;
+        }
+        .name {
+            font-weight: 700;
+            font-size: 1rem;
+            margin-bottom: 6px;
+            color: #2e241d;
+            line-height: 1.3;
+        }
+        .hex-value {
+            font-family: monospace;
+            font-size: 0.7rem;
+            background: #f6f0ea;
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 20px;
+            color: #7c5d46;
+            margin: 6px 0 8px;
+        }
+        .tags-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+        .mini-tag {
+            background: #f1e8e1;
+            font-size: 0.6rem;
+            padding: 3px 8px;
+            border-radius: 20px;
+            color: #8f684c;
+        }
+        /* 无结果 */
+        .no-result {
+            text-align: center;
+            padding: 48px 20px;
+            background: #fff9f4;
+            border-radius: 32px;
+            color: #b68160;
+            margin-top: 20px;
+        }
+
+        /* ----- 弹窗样式 (模态框) ----- */
+        .modal-mask {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0.2s, opacity 0.2s;
+        }
+        .modal-mask.active {
+            visibility: visible;
+            opacity: 1;
+        }
+        .modal-container {
+            background: white;
+            width: 86%;
+            max-width: 360px;
+            border-radius: 40px;
+            overflow: hidden;
+            box-shadow: 0 20px 35px rgba(0,0,0,0.3);
+            animation: fadeUp 0.25s ease;
+        }
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .modal-img-area {
+            background: #f7efe8;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            border-bottom: 1px solid #eedfcb;
+        }
+        .modal-img-placeholder {
+            font-size: 3rem;
+            color: #d9bea8;
+        }
+        .modal-img-area img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .modal-content {
+            padding: 20px 22px 28px;
+        }
+        .modal-brand {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #bc7a56;
+            letter-spacing: 1px;
+        }
+        .modal-name {
+            font-size: 1.7rem;
+            font-weight: 800;
+            margin: 8px 0 10px;
+            color: #2c1d13;
+        }
+        .modal-swatch {
+            width: 60px;
+            height: 60px;
+            border-radius: 30px;
+            margin: 12px 0;
+            border: 2px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .modal-hex {
+            font-family: monospace;
+            background: #f2ebe4;
+            padding: 6px 14px;
+            border-radius: 40px;
+            display: inline-block;
+            margin-bottom: 16px;
+            font-size: 0.85rem;
+        }
+        .modal-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 16px 0 12px;
+        }
+        .modal-tag {
+            background: #f0e2d6;
+            padding: 6px 16px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            color: #6f4c34;
+        }
+        .close-btn {
+            display: block;
+            width: 100%;
+            background: #f0e2d6;
+            border: none;
+            padding: 14px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #b25d3a;
+            border-radius: 60px;
+            margin-top: 20px;
+            cursor: pointer;
+            transition: 0.1s;
+        }
+        .close-btn:active {
+            background: #e0cfc0;
+        }
+
+        /* 工具条 */
+        .tool-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <div class="header">
+        <h1>💄口红识色器</h1>
+        <div class="sub">直男选色·告别翻车</div>
+    </div>
+
+    <div class="search-box">
+        <input type="text" id="searchInput" placeholder="🔍 搜索色号、品牌或标签 (如“显白”“丝绒”)" autocomplete="off">
+    </div>
+
+    <div class="filter-section">
+        <div class="filter-title">
+            📌 标签多选
+            <button id="resetFilterBtn" class="reset-filter">✖ 重置筛选</button>
+        </div>
+        <div class="tag-group" id="tagFilterGroup"></div>
+    </div>
+
+    <div class="result-stats">
+        <span class="count" id="resultCount">0 款色号</span>
+        <button id="clearSearchBtn" class="clear-search" style="display: none;">清空搜索</button>
+    </div>
+
+    <div id="cardsContainer" class="cards-grid"></div>
+</div>
+
+<!-- 弹窗结构 -->
+<div id="detailModal" class="modal-mask">
+    <div class="modal-container">
+        <div id="modalImgArea" class="modal-img-area">
+            <div class="modal-img-placeholder">💄📷</div>
+        </div>
+        <div class="modal-content">
+            <div class="modal-brand" id="modalBrand"></div>
+            <div class="modal-name" id="modalName"></div>
+            <div id="modalSwatch" class="modal-swatch" style="background-color: #ccc;"></div>
+            <div class="modal-hex" id="modalHex"></div>
+            <div id="modalTagsContainer" class="modal-tags"></div>
+            <button class="close-btn" id="closeModalBtn">关 闭</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ======================= 1. 内置色号数据 (10条示例，预留图片URL占位) =======================
+    // 数据结构: { id, brand, name, hex, tags, imageUrl(预留) }
+    const lipstickData = [
+        { id: 1, brand: "MAC", name: "Chili", hex: "#B3413A", tags: ["显白", "黄皮友好", "哑光", "复古红"], imageUrl: "" },
+        { id: 2, brand: "YSL", name: "小金条21", hex: "#C82C2C", tags: ["不挑皮", "正红", "哑光", "高级感"], imageUrl: "" },
+        { id: 3, brand: "Armani", name: "红管405", hex: "#E85D2E", tags: ["烂番茄", "显白", "黄皮友好", "丝绒"], imageUrl: "" },
+        { id: 4, brand: "Dior", name: "999 传奇红", hex: "#C4252C", tags: ["正红", "显白", "滋润", "经典"], imageUrl: "" },
+        { id: 5, brand: "Givenchy", name: "小羊皮333", hex: "#AD3B2C", tags: ["复古红", "哑光", "黄皮友好", "高级感"], imageUrl: "" },
+        { id: 6, brand: "Gucci", name: "碎花25", hex: "#BB6448", tags: ["豆沙", "素颜可用", "温柔", "滋润"], imageUrl: "" },
+        { id: 7, brand: "3CE", name: "DAFFODIL", hex: "#C5684A", tags: ["丝绒", "豆沙红", "素颜可用", "平价"], imageUrl: "" },
+        { id: 8, brand: "NARS", name: "Mona", hex: "#953F2E", tags: ["红棕", "显白", "秋冬", "哑光"], imageUrl: "" },
+        { id: 9, brand: "CT", name: "Walk of Shame", hex: "#B35D44", tags: ["豆沙红棕", "黄皮友好", "不挑皮", "丝绒"], imageUrl: "" },
+        { id: 10, brand: "Romand", name: "果汁13", hex: "#E27D5E", tags: ["镜面", "水光", "橘调", "少女感"], imageUrl: "" }
+    ];
+
+    // 提取所有不重复标签 (用于筛选器)
+    function getAllTagsFromData() {
+        const tagsSet = new Set();
+        lipstickData.forEach(item => {
+            item.tags.forEach(tag => tagsSet.add(tag));
+        });
+        // 可以自定义排序，但保持常用在前面 (显白/黄皮友好等)
+        const priority = ["显白", "黄皮友好", "哑光", "丝绒", "滋润", "镜面", "素颜可用", "不挑皮", "复古红", "正红", "烂番茄", "红棕", "豆沙", "豆沙红", "温柔", "秋冬", "平价", "高级感", "水光", "橘调", "少女感"];
+        const sorted = Array.from(tagsSet).sort((a,b) => {
+            let idxA = priority.indexOf(a);
+            let idxB = priority.indexOf(b);
+            if(idxA === -1) idxA = 999;
+            if(idxB === -1) idxB = 999;
+            return idxA - idxB;
+        });
+        return sorted;
+    }
+
+    // 全局状态
+    let currentSearchKeyword = "";     // 搜索框关键字
+    let activeTags = new Set();         // 当前选中的标签集合
+
+    // DOM 元素
+    const searchInput = document.getElementById('searchInput');
+    const tagFilterGroup = document.getElementById('tagFilterGroup');
+    const cardsContainer = document.getElementById('cardsContainer');
+    const resultCountSpan = document.getElementById('resultCount');
+    const clearSearchBtn = document.getElementById('clearSearchBtn');
+    const resetFilterBtn = document.getElementById('resetFilterBtn');
+    const modalMask = document.getElementById('detailModal');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+
+    // ======================= 2. 核心筛选逻辑 (名称/品牌/标签模糊 + 标签多选) =======================
+    function filterLipsticks() {
+        let filtered = [...lipstickData];
+
+        // 1. 关键词搜索 (名称、品牌、标签)
+        if (currentSearchKeyword.trim() !== "") {
+            const kw = currentSearchKeyword.trim().toLowerCase();
+            filtered = filtered.filter(item => {
+                // 匹配品牌、名称、以及每个标签
+                const brandMatch = item.brand.toLowerCase().includes(kw);
+                const nameMatch = item.name.toLowerCase().includes(kw);
+                const tagsMatch = item.tags.some(tag => tag.toLowerCase().includes(kw));
+                return brandMatch || nameMatch || tagsMatch;
+            });
+        }
+
+        // 2. 多标签筛选 (activeTags 有任意一个就要求交集)
+        if (activeTags.size > 0) {
+            filtered = filtered.filter(item => {
+                // 只要口红标签集合与activeTags有交集即可 (满足至少一个所选标签)
+                // 产品需求多选标签筛选 -> “包含任一标签”还是“包含全部”？直男场景为“符合任一标签”更友好
+                // 例如同时选“显白+黄皮友好”，显示既显白又黄皮友好的色号。使用交集逻辑，更精准
+                // 这里按照“必须包含所有选中标签” (AND) 更符合精准筛选需求，给直男减少困惑
+                // 但如果用户想要“显白或黄皮友好”，应该是OR，为了体验，这里做AND（更严格，更符合挑选）
+                // 多数查询工具为“且”关系，选中多个标签表示同时满足，便于精确。如不合理可调整，此处用AND
+                for (let tag of activeTags) {
+                    if (!item.tags.includes(tag)) return false;
+                }
+                return true;
+            });
+        }
+
+        return filtered;
+    }
+
+    // 渲染卡片
+    function renderCards() {
+        const filtered = filterLipsticks();
+        resultCountSpan.innerText = `${filtered.length} 款色号`;
+        // 控制清空搜索按钮显示
+        if (currentSearchKeyword.trim() !== "") {
+            clearSearchBtn.style.display = "inline-block";
+        } else {
+            clearSearchBtn.style.display = "none";
+        }
+
+        if (filtered.length === 0) {
+            cardsContainer.innerHTML = `<div class="no-result">😵 没有找到相关色号<br>试试其他关键词或重置筛选～</div>`;
+            return;
+        }
+
+        let html = '';
+        filtered.forEach(item => {
+            // 展示前3个标签
+            const previewTags = item.tags.slice(0, 3);
+            const tagsHtml = previewTags.map(t => `<span class="mini-tag">${t}</span>`).join('');
+            // 色块背景直接使用hex色值
+            html += `
+                <div class="lip-card" data-id="${item.id}">
+                    <div class="card-img-placeholder" style="background: #f3ede8;"></div>
+                    <div class="color-swatch" style="background-color: ${item.hex};"></div>
+                    <div class="card-info">
+                        <div class="brand">${escapeHtml(item.brand)}</div>
+                        <div class="name">${escapeHtml(item.name)}</div>
+                        <div class="hex-value">${item.hex}</div>
+                        <div class="tags-preview">${tagsHtml}</div>
+                    </div>
+                </div>
+            `;
+        });
+        cardsContainer.innerHTML = html;
+
+        // 绑定卡片点击事件 (委托)
+        document.querySelectorAll('.lip-card').forEach(card => {
+            card.addEventListener('click', (e) => {
+                const id = parseInt(card.getAttribute('data-id'));
+                const lipItem = lipstickData.find(l => l.id === id);
+                if (lipItem) openModal(lipItem);
+            });
+        });
+    }
+
+    // 辅助：防XSS
+    function escapeHtml(str) {
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    // 渲染标签筛选器 (多选按钮)
+    function renderTagFilters() {
+        const allTags = getAllTagsFromData();
+        tagFilterGroup.innerHTML = '';
+        allTags.forEach(tag => {
+            const tagSpan = document.createElement('span');
+            tagSpan.className = 'tag';
+            if (activeTags.has(tag)) tagSpan.classList.add('active');
+            tagSpan.innerText = tag;
+            tagSpan.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (activeTags.has(tag)) {
+                    activeTags.delete(tag);
+                } else {
+                    activeTags.add(tag);
+                }
+                renderTagFilters();   // 重新渲染标签样式
+                renderCards();        // 重新渲染卡片
+            });
+            tagFilterGroup.appendChild(tagSpan);
+        });
+    }
+
+    // 重置所有筛选 (清空搜索词、清空标签)
+    function resetAllFilters() {
+        currentSearchKeyword = "";
+        searchInput.value = "";
+        activeTags.clear();
+        renderTagFilters();
+        renderCards();
+    }
+
+    // 清空搜索框
+    function clearSearch() {
+        currentSearchKeyword = "";
+        searchInput.value = "";
+        renderCards();
+    }
+
+    // 打开弹窗 (展示详细信息)
+    function openModal(item) {
+        const modalBrand = document.getElementById('modalBrand');
+        const modalName = document.getElementById('modalName');
+        const modalSwatch = document.getElementById('modalSwatch');
+        const modalHex = document.getElementById('modalHex');
+        const modalTagsContainer = document.getElementById('modalTagsContainer');
+        const modalImgArea = document.getElementById('modalImgArea');
+
+        // 填充内容
+        modalBrand.innerText = item.brand;
+        modalName.innerText = item.name;
+        modalSwatch.style.backgroundColor = item.hex;
+        modalHex.innerText = item.hex;
+        // 渲染所有标签
+        modalTagsContainer.innerHTML = item.tags.map(tag => `<span class="modal-tag">${escapeHtml(tag)}</span>`).join('');
+
+        // 预留图片区域：如果有imageUrl则展示图片，否则展示占位符
+        // 由于一期无图片资源，全部显示占位 (但预留了逻辑，后期只需填入imageUrl即可)
+        modalImgArea.innerHTML = '';
+        if (item.imageUrl && item.imageUrl.trim() !== "") {
+            const img = document.createElement('img');
+            img.src = item.imageUrl;
+            img.alt = item.name;
+            img.onerror = () => {
+                modalImgArea.innerHTML = '<div class="modal-img-placeholder">📷 暂无图</div>';
+            };
+            modalImgArea.appendChild(img);
+        } else {
+            const placeholderDiv = document.createElement('div');
+            placeholderDiv.className = 'modal-img-placeholder';
+            placeholderDiv.innerText = '💄 实拍图预留位';
+            modalImgArea.appendChild(placeholderDiv);
+        }
+
+        modalMask.classList.add('active');
+    }
+
+    function closeModal() {
+        modalMask.classList.remove('active');
+    }
+
+    // 监听搜索框输入
+    function bindEvents() {
+        searchInput.addEventListener('input', (e) => {
+            currentSearchKeyword = e.target.value;
+            renderCards();
+        });
+
+        clearSearchBtn.addEventListener('click', () => {
+            clearSearch();
+        });
+
+        resetFilterBtn.addEventListener('click', () => {
+            resetAllFilters();
+        });
+
+        closeModalBtn.addEventListener('click', closeModal);
+        modalMask.addEventListener('click', (e) => {
+            if (e.target === modalMask) closeModal();
+        });
+    }
+
+    // 初始化页面
+    function init() {
+        bindEvents();
+        renderTagFilters();
+        renderCards();
+    }
+
+    init();
+</script>
+</body>
+</html>
