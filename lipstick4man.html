@@ -19,13 +19,11 @@
             padding: 20px 16px 40px;
         }
 
-        /* 主容器，移动端舒适宽度 */
         .app-container {
             max-width: 500px;
             margin: 0 auto;
         }
 
-        /* 头部 */
         .header {
             margin-bottom: 24px;
             text-align: center;
@@ -48,7 +46,6 @@
             padding-top: 6px;
         }
 
-        /* 搜索框 */
         .search-box {
             margin-bottom: 20px;
         }
@@ -62,14 +59,12 @@
             box-shadow: 0 2px 6px rgba(0,0,0,0.02);
             transition: all 0.2s;
             outline: none;
-            font-weight: 400;
         }
         .search-box input:focus {
             border-color: #d48c6c;
             box-shadow: 0 0 0 3px rgba(212, 140, 108, 0.2);
         }
 
-        /* 标签筛选区 (多选) */
         .filter-section {
             background: white;
             border-radius: 28px;
@@ -128,7 +123,6 @@
             box-shadow: 0 2px 6px rgba(217, 91, 60, 0.3);
         }
 
-        /* 结果统计 & 清空搜索 */
         .result-bar {
             display: flex;
             justify-content: space-between;
@@ -150,14 +144,12 @@
             cursor: pointer;
         }
 
-        /* 卡片网格 - 移动端两列 */
         .cards-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 16px;
         }
 
-        /* 卡片样式（词典风格） */
         .dict-card {
             background: white;
             border-radius: 28px;
@@ -170,7 +162,6 @@
         .dict-card:active {
             transform: scale(0.98);
         }
-        /* 大色块区域 */
         .color-block {
             height: 110px;
             width: 100%;
@@ -218,7 +209,6 @@
             font-weight: 600;
         }
 
-        /* 无结果 */
         .no-result {
             text-align: center;
             padding: 48px 20px;
@@ -228,7 +218,6 @@
             margin-top: 20px;
         }
 
-        /* ----- 弹窗样式 (模态框) 增强直男翻译 ----- */
         .modal-mask {
             position: fixed;
             top: 0;
@@ -321,7 +310,6 @@
             border-radius: 28px;
             margin: 12px 0;
         }
-        /* 直男翻译专区 */
         .man-translation {
             background: #f0e7dd;
             border-left: 5px solid #d95b3c;
@@ -341,7 +329,6 @@
             font-size: 0.9rem;
             line-height: 1.45;
             color: #3f2c1d;
-            font-style: normal;
         }
         .modal-tags {
             display: flex;
@@ -373,8 +360,6 @@
         .close-btn:active {
             background: #e0cfc0;
         }
-
-        /* 滚动条隐藏但可滚动 */
         .modal-container::-webkit-scrollbar {
             width: 4px;
         }
@@ -388,12 +373,12 @@
     </div>
 
     <div class="search-box">
-        <input type="text" id="searchInput" placeholder="🔍 搜索术语、品牌、色号示例…" autocomplete="off">
+        <input type="text" id="searchInput" placeholder="🔍 搜索颜色名称 (如“芭比粉”“枫叶红”)" autocomplete="off">
     </div>
 
     <div class="filter-section">
         <div class="filter-header">
-            <div class="filter-title">🏷️ 按特性筛选（多选）</div>
+            <div class="filter-title">🎨 按颜色分类筛选</div>
             <button id="resetFilterBtn" class="reset-filter">重置筛选</button>
         </div>
         <div class="tag-group" id="tagFilterGroup"></div>
@@ -407,7 +392,6 @@
     <div id="cardsContainer" class="cards-grid"></div>
 </div>
 
-<!-- 弹窗结构 -->
 <div id="detailModal" class="modal-mask">
     <div class="modal-container">
         <div id="modalColorBlock" class="modal-color" style="background-color: #ccc;"></div>
@@ -418,7 +402,6 @@
             <div class="modal-explanation" id="modalExplanation"></div>
             <div class="modal-skin-hint" id="modalSkinHint"></div>
             <div class="modal-example" id="modalExample"></div>
-            <!-- 直男翻译专用区块 -->
             <div class="man-translation" id="modalManTranslation">
                 <div class="label">🧔 直男翻译</div>
                 <div class="text" id="manTranslationText"></div>
@@ -430,35 +413,32 @@
 </div>
 
 <script>
-    // ======================= 1. 数据定义（词典模式，10条测试数据） =======================
+    // ========== 数据定义（新增 colorFamily 字段）==========
     const lipGlossary = [
-        { id: 1, term: "芭比粉", brand: "YSL", hex: "#FF69B4", plainExplanation: "高饱和度的亮粉色，荧光感强，俗称“死亡芭比粉”", skinToneHint: "白皮也易显黑，黄皮绝对慎选", manTranslation: "就是很亮很亮的粉红色，涂上像芭比娃娃，但现实中容易显土气，非冷白皮别碰。", lipstickExample: "YSL 方管52", tags: ["荧光", "冷调", "高饱和", "显黑"] },
-        { id: 2, term: "正红色", brand: "Dior", hex: "#C4252C", plainExplanation: "经典大红色，气场全开，不偏橘不偏蓝", skinToneHint: "几乎所有肤色都能驾驭，显白首选", manTranslation: "就是那种很正很浓的红，涂上像红毯明星，气场拉满。", lipstickExample: "Dior 999", tags: ["经典", "显白", "不挑皮", "气场强"] },
-        { id: 3, term: "豆沙色", brand: "NARS", hex: "#A65D48", plainExplanation: "介于粉色与棕色之间，温柔知性，日常百搭", skinToneHint: "黄皮友好，素颜可用，不突兀", manTranslation: "像红豆沙一样的颜色，涂上很自然，不浓不淡，日常不出错。", lipstickExample: "NARS Dolce Vita", tags: ["温柔", "日常", "素颜友好", "黄皮友好"] },
-        { id: 4, term: "枫叶红", brand: "MAC", hex: "#B3413A", plainExplanation: "红棕色中带橘调，像秋天的枫叶，复古又显白", skinToneHint: "黄皮亲妈，显白一级棒", manTranslation: "红里透点橘，像秋天的叶子，涂上很显白，不挑人。", lipstickExample: "MAC Chili", tags: ["橘棕", "复古", "显白", "秋冬"] },
-        { id: 5, term: "烂番茄", brand: "Armani", hex: "#E85D2E", plainExplanation: "浓郁的橘红色，像熟透的番茄，显白又有活力", skinToneHint: "黄皮挚爱，显白不荧光", manTranslation: "橘红色，像番茄酱的颜色，涂上很亮眼，巨显白。", lipstickExample: "Armani 红管405", tags: ["橘红", "显白", "黄皮友好", "丝绒"] },
-        { id: 6, term: "奶茶色", brand: "Bobbi Brown", hex: "#C9A690", plainExplanation: "温柔的裸调棕粉色，像奶茶一样柔和", skinToneHint: "不挑肤色，适合通勤淡妆", manTranslation: "就是奶茶那种颜色，涂上很温柔，低调有气质。", lipstickExample: "Bobbi Brown Claret", tags: ["裸粉", "温柔", "日常", "不挑皮"] },
-        { id: 7, term: "梅子色", brand: "3CE", hex: "#8E4B6E", plainExplanation: "紫色调浆果色，冷艳气质，适合秋冬", skinToneHint: "白皮显气质，黄皮需带妆", manTranslation: "像梅子一样的紫红色，涂上很有气场，但黄皮不化妆容易显黑。", lipstickExample: "3CE Know Better", tags: ["紫调", "冷艳", "秋冬", "挑妆"] },
-        { id: 8, term: "西柚色", brand: "MAC", hex: "#F3A28C", plainExplanation: "粉橘调，像西柚果肉，清新减龄", skinToneHint: "白皮显嫩，黄皮可用但别太荧光", manTranslation: "粉橘色，像西柚肉，涂上显得年轻活泼，适合夏天。", lipstickExample: "MAC See Sheer", tags: ["粉橘", "减龄", "清新", "日常"] },
-        { id: 9, term: "土棕色", brand: "Pat McGrath", hex: "#8B5A3A", plainExplanation: "棕色调明显，带土感，欧美妆标配", skinToneHint: "白皮涂很高级，黄皮需气场驾驭", manTranslation: "土一样的棕色，涂上像欧美模特，很酷但可能显成熟。", lipstickExample: "Pat McGrath Omi", tags: ["棕色", "欧美", "高级", "挑人"] },
-        { id: 10, term: "紫调浆果色", brand: "YSL", hex: "#C43A6B", plainExplanation: "紫红色偏深，像浆果汁液，气场强大", skinToneHint: "冷白皮显白，黄皮需要全妆", manTranslation: "紫红色的口红，涂上像吸血鬼女王，很显眼但挑人，全妆才hold住。", lipstickExample: "YSL 黑管409", tags: ["紫红", "气场", "秋冬", "浓妆必备"] }
+        { id: 1, term: "芭比粉", brand: "YSL", hex: "#FF69B4", plainExplanation: "高饱和度的亮粉色，荧光感强，俗称“死亡芭比粉”", skinToneHint: "白皮也易显黑，黄皮绝对慎选", manTranslation: "就是很亮很亮的粉红色，涂上像芭比娃娃，但现实中容易显土气，非冷白皮别碰。", lipstickExample: "YSL 方管52", colorFamily: "粉色系", tags: ["荧光", "冷调", "高饱和", "显黑"] },
+        { id: 2, term: "正红色", brand: "Dior", hex: "#C4252C", plainExplanation: "经典大红色，气场全开，不偏橘不偏蓝", skinToneHint: "几乎所有肤色都能驾驭，显白首选", manTranslation: "就是那种很正很浓的红，涂上像红毯明星，气场拉满。", lipstickExample: "Dior 999", colorFamily: "红色系", tags: ["经典", "显白", "不挑皮", "气场强"] },
+        { id: 3, term: "豆沙色", brand: "NARS", hex: "#A65D48", plainExplanation: "介于粉色与棕色之间，温柔知性，日常百搭", skinToneHint: "黄皮友好，素颜可用，不突兀", manTranslation: "像红豆沙一样的颜色，涂上很自然，不浓不淡，日常不出错。", lipstickExample: "NARS Dolce Vita", colorFamily: "粉色系", tags: ["温柔", "日常", "素颜友好", "黄皮友好"] },
+        { id: 4, term: "枫叶红", brand: "MAC", hex: "#B3413A", plainExplanation: "红棕色中带橘调，像秋天的枫叶，复古又显白", skinToneHint: "黄皮亲妈，显白一级棒", manTranslation: "红里透点橘，像秋天的叶子，涂上很显白，不挑人。", lipstickExample: "MAC Chili", colorFamily: "红色系", tags: ["橘棕", "复古", "显白", "秋冬"] },
+        { id: 5, term: "烂番茄", brand: "Armani", hex: "#E85D2E", plainExplanation: "浓郁的橘红色，像熟透的番茄，显白又有活力", skinToneHint: "黄皮挚爱，显白不荧光", manTranslation: "橘红色，像番茄酱的颜色，涂上很亮眼，巨显白。", lipstickExample: "Armani 红管405", colorFamily: "橘色系", tags: ["橘红", "显白", "黄皮友好", "丝绒"] },
+        { id: 6, term: "奶茶色", brand: "Bobbi Brown", hex: "#C9A690", plainExplanation: "温柔的裸调棕粉色，像奶茶一样柔和", skinToneHint: "不挑肤色，适合通勤淡妆", manTranslation: "就是奶茶那种颜色，涂上很温柔，低调有气质。", lipstickExample: "Bobbi Brown Claret", colorFamily: "棕色系", tags: ["裸粉", "温柔", "日常", "不挑皮"] },
+        { id: 7, term: "梅子色", brand: "3CE", hex: "#8E4B6E", plainExplanation: "紫色调浆果色，冷艳气质，适合秋冬", skinToneHint: "白皮显气质，黄皮需带妆", manTranslation: "像梅子一样的紫红色，涂上很有气场，但黄皮不化妆容易显黑。", lipstickExample: "3CE Know Better", colorFamily: "紫色系", tags: ["紫调", "冷艳", "秋冬", "挑妆"] },
+        { id: 8, term: "西柚色", brand: "MAC", hex: "#F3A28C", plainExplanation: "粉橘调，像西柚果肉，清新减龄", skinToneHint: "白皮显嫩，黄皮可用但别太荧光", manTranslation: "粉橘色，像西柚肉，涂上显得年轻活泼，适合夏天。", lipstickExample: "MAC See Sheer", colorFamily: "橘色系", tags: ["粉橘", "减龄", "清新", "日常"] },
+        { id: 9, term: "土棕色", brand: "Pat McGrath", hex: "#8B5A3A", plainExplanation: "棕色调明显，带土感，欧美妆标配", skinToneHint: "白皮涂很高级，黄皮需气场驾驭", manTranslation: "土一样的棕色，涂上像欧美模特，很酷但可能显成熟。", lipstickExample: "Pat McGrath Omi", colorFamily: "棕色系", tags: ["棕色", "欧美", "高级", "挑人"] },
+        { id: 10, term: "紫调浆果色", brand: "YSL", hex: "#C43A6B", plainExplanation: "紫红色偏深，像浆果汁液，气场强大", skinToneHint: "冷白皮显白，黄皮需要全妆", manTranslation: "紫红色的口红，涂上像吸血鬼女王，很显眼但挑人，全妆才hold住。", lipstickExample: "YSL 黑管409", colorFamily: "紫色系", tags: ["紫红", "气场", "秋冬", "浓妆必备"] }
     ];
 
-    // 提取所有不重复标签（用于筛选器）
-    function getAllTags() {
-        const tagSet = new Set();
+    // 从数据中提取所有颜色分类（用于标签筛选）
+    function getAllColorFamilies() {
+        const families = new Set();
         lipGlossary.forEach(item => {
-            item.tags.forEach(t => tagSet.add(t));
+            if (item.colorFamily) families.add(item.colorFamily);
         });
-        // 简单排序，保持友好顺序
-        return Array.from(tagSet).sort();
+        return Array.from(families).sort();
     }
 
-    // 全局状态
     let currentKeyword = "";
-    let activeTags = new Set();   // 多选标签集合
+    let activeColorFamilies = new Set();   // 存储选中的颜色分类
 
-    // DOM 元素
     const searchInput = document.getElementById('searchInput');
     const tagFilterGroup = document.getElementById('tagFilterGroup');
     const cardsContainer = document.getElementById('cardsContainer');
@@ -468,60 +448,58 @@
     const modalMask = document.getElementById('detailModal');
     const closeModalBtn = document.getElementById('closeModalBtn');
 
-    // 筛选逻辑 (搜索词 + 多标签 AND)
+    // 核心筛选逻辑（搜索只匹配 term，标签筛选匹配 colorFamily）
     function filterGlossary() {
         let filtered = [...lipGlossary];
 
-        // 1. 关键词模糊匹配 (术语、品牌、plainExplanation、lipstickExample、标签)
+        // 1. 关键词搜索：仅匹配术语(term)
         if (currentKeyword.trim() !== "") {
             const kw = currentKeyword.trim().toLowerCase();
-            filtered = filtered.filter(item => {
-                return item.term.toLowerCase().includes(kw) ||
-                       (item.brand && item.brand.toLowerCase().includes(kw)) ||
-                       item.plainExplanation.toLowerCase().includes(kw) ||
-                       item.lipstickExample.toLowerCase().includes(kw) ||
-                       item.tags.some(tag => tag.toLowerCase().includes(kw));
-            });
+            filtered = filtered.filter(item => item.term.toLowerCase().includes(kw));
         }
 
-        // 2. 多标签筛选 (必须包含所有选中的标签)
-        if (activeTags.size > 0) {
-            filtered = filtered.filter(item => {
-                for (let tag of activeTags) {
-                    if (!item.tags.includes(tag)) return false;
-                }
-                return true;
-            });
+        // 2. 颜色分类筛选（多选 AND 逻辑：必须同时属于所有选中分类，但由于每个术语只有一个分类，实际效果是只要属于任一选中分类就会被保留；这里实现为 OR 更合理）
+        // 为了让多选有意义（例如同时选“粉色系”和“红色系”会显示所有粉色+红色），我们采用 OR 逻辑（满足任一选中分类即可）
+        if (activeColorFamilies.size > 0) {
+            filtered = filtered.filter(item => activeColorFamilies.has(item.colorFamily));
         }
+
         return filtered;
     }
 
-    // 渲染卡片 (词典样式)
+    // 判断当前是否为“空状态”（无搜索词且无任何筛选）
+    function isEmptyState() {
+        return currentKeyword.trim() === "" && activeColorFamilies.size === 0;
+    }
+
+    // 渲染卡片：空状态时只显示前4个示例（取数据前4条）
     function renderCards() {
-        const filtered = filterGlossary();
-        resultCountSpan.innerText = `${filtered.length} 条黑话`;
-        if (currentKeyword.trim() !== "") {
-            clearSearchBtn.style.display = "inline-block";
+        const filteredAll = filterGlossary();
+        let displayData = filteredAll;
+
+        // 如果没有搜索词且没有选中任何颜色分类，只显示前4个（固定示例）
+        if (isEmptyState()) {
+            displayData = lipGlossary.slice(0, 4);
+            resultCountSpan.innerText = `${displayData.length} 条黑话 (示例)`;  // 提示示例
         } else {
-            clearSearchBtn.style.display = "none";
+            resultCountSpan.innerText = `${displayData.length} 条黑话`;
         }
 
-        if (filtered.length === 0) {
-            cardsContainer.innerHTML = `<div class="no-result">🤔 没找到这个黑话…<br>试试其他关键词或重置筛选</div>`;
+        if (displayData.length === 0) {
+            cardsContainer.innerHTML = `<div class="no-result">🤔 没找到这个颜色名称…<br>试试其他关键词或重置筛选</div>`;
+            clearSearchBtn.style.display = currentKeyword.trim() !== "" ? "inline-block" : "none";
             return;
         }
 
         let html = '';
-        filtered.forEach(item => {
-            // 肤色提示图标简单处理
-            const skinHintShort = item.skinToneHint.length > 28 ? item.skinToneHint.slice(0, 26)+"…" : item.skinToneHint;
+        displayData.forEach(item => {
             html += `
                 <div class="dict-card" data-id="${item.id}">
                     <div class="color-block" style="background-color: ${item.hex};"></div>
                     <div class="card-content">
                         <div class="term">${escapeHtml(item.term)}</div>
                         <div class="simple-explanation">${escapeHtml(item.plainExplanation)}</div>
-                        <div class="skin-hint">👤 ${escapeHtml(skinHintShort)}</div>
+                        <div class="skin-hint">👤 ${escapeHtml(item.skinToneHint)}</div>
                         <div class="example"><span>💄 代表色号：</span>${escapeHtml(item.lipstickExample)}</div>
                     </div>
                 </div>
@@ -529,7 +507,7 @@
         });
         cardsContainer.innerHTML = html;
 
-        // 绑定卡片点击事件 (委托)
+        // 绑定卡片点击事件
         document.querySelectorAll('.dict-card').forEach(card => {
             card.addEventListener('click', (e) => {
                 const id = parseInt(card.getAttribute('data-id'));
@@ -537,50 +515,52 @@
                 if (item) openModal(item);
             });
         });
+
+        // 控制清空搜索按钮显示
+        clearSearchBtn.style.display = currentKeyword.trim() !== "" ? "inline-block" : "none";
     }
 
-    // 渲染标签筛选器 (多选)
+    // 渲染颜色分类标签（多选）
     function renderTagFilters() {
-        const allTags = getAllTags();
+        const families = getAllColorFamilies();
         tagFilterGroup.innerHTML = '';
-        allTags.forEach(tag => {
+        families.forEach(family => {
             const tagSpan = document.createElement('span');
             tagSpan.className = 'tag';
-            if (activeTags.has(tag)) tagSpan.classList.add('active');
-            tagSpan.innerText = tag;
+            if (activeColorFamilies.has(family)) tagSpan.classList.add('active');
+            tagSpan.innerText = family;
             tagSpan.addEventListener('click', (e) => {
                 e.stopPropagation();
-                if (activeTags.has(tag)) {
-                    activeTags.delete(tag);
+                if (activeColorFamilies.has(family)) {
+                    activeColorFamilies.delete(family);
                 } else {
-                    activeTags.add(tag);
+                    activeColorFamilies.add(family);
                 }
-                renderTagFilters();  // 刷新高亮
-                renderCards();       // 重新渲染卡片
+                renderTagFilters();
+                renderCards();
             });
             tagFilterGroup.appendChild(tagSpan);
         });
     }
 
-    // 重置所有筛选
+    // 重置所有筛选（清空关键词和选中标签）
     function resetAllFilters() {
         currentKeyword = "";
         searchInput.value = "";
-        activeTags.clear();
+        activeColorFamilies.clear();
         renderTagFilters();
         renderCards();
     }
 
-    // 清空搜索词
+    // 清空搜索框
     function clearSearchOnly() {
         currentKeyword = "";
         searchInput.value = "";
         renderCards();
     }
 
-    // 打开详情弹窗（包含直男翻译）
+    // 打开详情弹窗
     function openModal(item) {
-        // 填充各区域
         document.getElementById('modalColorBlock').style.backgroundColor = item.hex;
         document.getElementById('modalTerm').innerText = item.term;
         document.getElementById('modalBrand').innerText = item.brand ? item.brand : '';
@@ -589,10 +569,8 @@
         document.getElementById('modalSkinHint').innerHTML = `🎨 肤色适配：${escapeHtml(item.skinToneHint)}`;
         document.getElementById('modalExample').innerHTML = `💄 代表色号：${escapeHtml(item.lipstickExample)}`;
         document.getElementById('manTranslationText').innerText = item.manTranslation;
-        // 标签渲染
         const tagsContainer = document.getElementById('modalTagsContainer');
-        tagsContainer.innerHTML = item.tags.map(tag => `<span class="modal-tag">${escapeHtml(tag)}</span>`).join('');
-        
+        tagsContainer.innerHTML = (item.tags || []).map(tag => `<span class="modal-tag">${escapeHtml(tag)}</span>`).join('');
         modalMask.classList.add('active');
     }
 
@@ -600,28 +578,20 @@
         modalMask.classList.remove('active');
     }
 
-    // 绑定全局事件
     function bindEvents() {
         searchInput.addEventListener('input', (e) => {
             currentKeyword = e.target.value;
             renderCards();
         });
 
-        clearSearchBtn.addEventListener('click', () => {
-            clearSearchOnly();
-        });
-
-        resetFilterBtn.addEventListener('click', () => {
-            resetAllFilters();
-        });
-
+        clearSearchBtn.addEventListener('click', clearSearchOnly);
+        resetFilterBtn.addEventListener('click', resetAllFilters);
         closeModalBtn.addEventListener('click', closeModal);
         modalMask.addEventListener('click', (e) => {
             if (e.target === modalMask) closeModal();
         });
     }
 
-    // 辅助防XSS
     function escapeHtml(str) {
         if (!str) return '';
         return str.replace(/[&<>]/g, function(m) {
@@ -629,12 +599,9 @@
             if (m === '<') return '&lt;';
             if (m === '>') return '&gt;';
             return m;
-        }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) {
-            return c;
         });
     }
 
-    // 初始化
     function init() {
         bindEvents();
         renderTagFilters();
